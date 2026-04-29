@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Radar Editorial — Meganoticias</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:   #0a1f44;--navy2:#0d2654;--navy3:#112d62;
+    --white:  #ffffff;--off:#f5f6f8;--light:#e8edf5;
+    --red:    #d32f2f;--red2:#b71c1c;
+    --yellow: #f9a825;--yel2:#f57f17;
+    --green:  #2e7d32;
+    --text:   #1a2a4a;--text2:#4a5d7a;--text3:#8a9ab5;
+    --bdr:    #dce4f0;--bdr2:#c5d0e4;
+    --r:10px;--rs:6px;
+    --sh:0 2px 10px rgba(10,31,68,.07);
+    --sh2:0 4px 22px rgba(10,31,68,.13);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--off);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;min-height:100vh;line-height:1.55;}
+
+  header{background:var(--navy);height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 2rem;position:sticky;top:0;z-index:100;box-shadow:0 2px 18px rgba(10,31,68,.3);}
+  .logo{display:flex;align-items:center;gap:14px;}
+  .logo-mark{background:var(--red);color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;letter-spacing:.08em;padding:5px 11px;border-radius:4px;}
+  .logo-text{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:21px;color:#fff;}
+  .logo-text span{color:var(--yellow);}
+  .hdr-right{display:flex;align-items:center;gap:14px;}
+  #lastUpdate{font-size:12px;color:rgba(255,255,255,.42);font-weight:500;}
+  .dot{width:7px;height:7px;background:var(--yellow);border-radius:50%;box-shadow:0 0 7px var(--yellow);animation:blink 2s ease-in-out infinite;display:none;}
+  .dot.on{display:block;}
+  @keyframes blink{0%,100%{opacity:1;}50%{opacity:.25;}}
+
+  .layout{display:grid;grid-template-columns:210px 1fr;min-height:calc(100vh - 62px);}
+
+  aside{background:var(--white);border-right:1px solid var(--bdr);padding:1.25rem .75rem;position:sticky;top:62px;height:calc(100vh - 62px);overflow-y:auto;}
+  .slabel{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--text3);padding:0 10px;margin-bottom:7px;}
+  .nav{display:flex;align-items:center;gap:9px;width:100%;padding:9px 10px;border-radius:var(--rs);cursor:pointer;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;color:var(--text2);border:none;background:none;text-align:left;transition:all .12s;margin-bottom:2px;}
+  .nav:hover{background:var(--off);color:var(--text);}
+  .nav.active{background:var(--navy);color:#fff;}
+  .ni{font-size:14px;width:18px;text-align:center;flex-shrink:0;}
+  .nb{margin-left:auto;font-size:11px;font-weight:700;padding:1px 7px;border-radius:99px;background:#fde8e8;color:var(--red);flex-shrink:0;}
+  .nb.g{background:#e6f4ea;color:var(--green);}
+  .nb.a{background:#fff8e1;color:var(--yel2);}
+  .nb.b{background:#e3edf8;color:var(--navy);}
+  .nb.gr{background:var(--light);color:var(--text2);}
+  .nav.active .nb{background:rgba(255,255,255,.18);color:#fff;}
+  .sdiv{height:1px;background:var(--bdr);margin:10px 0;}
+  .cbt{display:block;width:100%;text-align:left;padding:6px 10px;border-radius:var(--rs);font-size:13px;font-weight:500;color:var(--text2);background:none;border:none;cursor:pointer;font-family:'Barlow',sans-serif;transition:all .1s;margin-bottom:1px;}
+  .cbt:hover{background:var(--off);color:var(--text);}
+  .cbt.active{color:var(--red);font-weight:700;background:#fde8e8;}
+
+  main{padding:1.75rem 2rem;}
+
+  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:1.75rem;}
+  .metric{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);}
+  .metric.tr{border-top:3px solid var(--red);}
+  .metric.ty{border-top:3px solid var(--yellow);}
+  .metric.tn{border-top:3px solid var(--navy3);}
+  .mlb{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);margin-bottom:6px;}
+  .mv{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;line-height:1;color:var(--navy);}
+  .mv.r{color:var(--red);}.mv.g{color:var(--green);}.mv.a{color:var(--yel2);}.mv.b{color:var(--navy3);}
+  .ms{font-size:11px;color:var(--text3);margin-top:5px;font-weight:500;}
+
+  .shdr{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .stitle{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:900;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;}
+  .sline{flex:1;height:2px;background:linear-gradient(to right,var(--bdr),transparent);}
+
+  .sbar{margin-bottom:1.25rem;}
+  .sinput{width:100%;background:var(--white);border:1px solid var(--bdr2);border-radius:var(--rs);color:var(--text);font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;padding:9px 14px;outline:none;transition:border-color .15s,box-shadow .15s;box-shadow:var(--sh);}
+  .sinput:focus{border-color:var(--navy3);box-shadow:0 0 0 3px rgba(13,38,84,.08);}
+  .sinput::placeholder{color:var(--text3);}
+
+  .cdiv{display:flex;align-items:center;gap:10px;margin:18px 0 10px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;}
+  .cdiv .cl{flex:1;height:1px;background:var(--bdr);}
+  .cr{color:var(--red);}.ca{color:var(--yel2);}
+
+  .nlist{display:flex;flex-direction:column;gap:5px;}
+  .card{background:var(--white);border:1px solid var(--bdr);border-left:4px solid transparent;border-radius:var(--r);padding:12px 16px;box-shadow:var(--sh);transition:box-shadow .12s;}
+  .card:hover{box-shadow:var(--sh2);}
+  .card.breach{border-left-color:var(--red);}
+  .card.covered{border-left-color:var(--green);}
+  .card.excl{border-left-color:var(--yellow);}
+  .card.trend{border-left-color:var(--navy3);}
+  .hl{font-size:14px;font-weight:600;line-height:1.4;color:var(--text);margin-bottom:7px;}
+  .hl a{color:var(--text);text-decoration:none;}
+  .hl a:hover{color:var(--navy3);text-decoration:underline;}
+  .meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .bx{font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;white-space:nowrap;font-family:'Barlow',sans-serif;}
+  .bb{background:#fde8e8;color:var(--red2);}
+  .bc{background:#e6f4ea;color:#1b5e20;}
+  .be{background:#fff8e1;color:var(--yel2);}
+  .bk{background:var(--light);color:var(--navy);}
+  .bcat{background:#f0f3f8;color:var(--text3);font-size:10px;}
+  .bt{font-size:11px;color:var(--text3);font-weight:500;}
+  .srcs{margin-top:5px;font-size:11px;color:var(--text3);font-weight:500;}
+
+  .sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;}
+  .scard{background:var(--white);border:1px solid var(--bdr);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);}
+  .scard.mega{border-top:3px solid var(--red);}
+  .sname{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:800;color:var(--navy);margin-bottom:3px;}
+  .scnt{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px;}
+  .sbar2{height:4px;background:var(--light);border-radius:2px;}
+  .sfill{height:4px;border-radius:2px;background:var(--navy);transition:width .5s;}
+  .scard.mega .sfill{background:var(--red);}
+  .echip{display:inline-block;font-size:11px;color:var(--red2);background:#fde8e8;padding:2px 8px;border-radius:4px;font-weight:700;margin-bottom:6px;}
+  .okchip{display:inline-block;font-size:11px;color:var(--green);background:#e6f4ea;padding:2px 8px;border-radius:4px;font-weight:700;margin-bottom:6px;}
+  .stag-new{display:inline-block;font-size:10px;font-weight:700;padding:1px 6px;border-radius:3px;margin-left:4px;background:#e8f5e9;color:#2e7d32;border:1px solid #a5d6a7;vertical-align:middle;}
+
+  .splash{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;text-align:center;min-height:60vh;}
+  .emblem{width:72px;height:72px;background:var(--navy);border-radius:16px;display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;box-shadow:var(--sh2);}
+  .emblem span{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:30px;color:var(--yellow);}
+  .splashtitle{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:28px;color:var(--navy);margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;}
+  .splashdesc{font-size:14px;color:var(--text2);max-width:420px;line-height:1.6;margin-bottom:2rem;font-weight:500;}
+  .pwrap{width:320px;margin-top:1.25rem;}
+  .pbar{width:100%;height:4px;background:var(--light);border-radius:2px;overflow:hidden;}
+  .pfill{height:4px;background:var(--red);border-radius:2px;width:0%;transition:width .28s ease;}
+  .plbl{font-size:12px;color:var(--text3);margin-top:7px;font-weight:600;}
+
+  .btn{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:15px;letter-spacing:.06em;text-transform:uppercase;padding:11px 26px;border-radius:var(--rs);cursor:pointer;border:none;transition:all .14s;}
+  .btn-r{background:var(--red);color:#fff;box-shadow:0 2px 10px rgba(211,47,47,.3);}
+  .btn-r:hover{background:var(--red2);}
+  .btn-r:disabled{opacity:.5;cursor:not-allowed;box-shadow:none;}
+
+  .notice{border-radius:var(--rs);padding:10px 14px;font-size:12px;font-weight:600;margin-bottom:1.25rem;}
+  .notice-yellow{background:#fff8e1;border:1px solid #ffe082;border-left:4px solid var(--yellow);color:var(--yel2);}
+  .notice-blue{background:#e3edf8;border:1px solid #90b8e0;border-left:4px solid var(--navy3);color:var(--navy3);}
+  .empty{padding:2.5rem;text-align:center;color:var(--text3);font-size:14px;font-weight:500;}
+
+  /* proxy status indicator */
+  .proxy-wrap{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
+  .proxy-pill{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:99px;}
+  .proxy-pill.checking{background:rgba(249,168,37,.15);color:var(--yellow);border:1px solid rgba(249,168,37,.3);}
+  .proxy-pill.ok{background:rgba(46,125,50,.15);color:#81c784;border:1px solid rgba(46,125,50,.3);}
+  .proxy-pill.fail{background:rgba(211,47,47,.2);color:#ef9a9a;border:1px solid rgba(211,47,47,.3);}
+  .pdot{width:5px;height:5px;border-radius:50%;background:currentColor;}
+
+  ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:var(--off);} ::-webkit-scrollbar-thumb{background:var(--bdr2);border-radius:3px;}
+  .fi{animation:fi .22s ease;}
+  @keyframes fi{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:translateY(0);}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-mark">MX</div>
+    <div class="logo-text">RADAR <span>EDITORIAL</span></div>
+  </div>
+  <div class="hdr-right">
+    <div class="proxy-wrap">
+      <span id="proxyPill" class="proxy-pill checking"><span class="pdot"></span>Iniciando…</span>
+      <span id="proxyName" style="font-size:10px;color:rgba(255,255,255,.3);display:none;"></span>
+    </div>
+    <div class="dot" id="liveDot"></div>
+    <span id="lastUpdate"></span>
+    <button class="btn btn-r" id="loadBtn" onclick="loadAll()">Analizar ahora</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside>
+    <div style="margin-bottom:10px;">
+      <div class="slabel">Vistas</div>
+      <button class="nav active" id="nav-brechas"       onclick="go('brechas')">      <span class="ni">⚡</span>Brechas       <span class="nb"   id="bb">—</span></button>
+      <button class="nav"        id="nav-urgentes"      onclick="go('urgentes')">     <span class="ni">🔴</span>Urgentes      <span class="nb"   id="bu">—</span></button>
+      <button class="nav"        id="nav-tendencias"    onclick="go('tendencias')">   <span class="ni">📈</span>Tendencias    <span class="nb b" id="bt">—</span></button>
+      <button class="nav"        id="nav-coincidencias" onclick="go('coincidencias')"><span class="ni">✓</span>Coincidencias <span class="nb g" id="bc">—</span></button>
+      <button class="nav"        id="nav-exclusivos"    onclick="go('exclusivos')">   <span class="ni">★</span>Exclusivos    <span class="nb a" id="be">—</span></button>
+      <button class="nav"        id="nav-fuentes"       onclick="go('fuentes')">      <span class="ni">◎</span>Fuentes       <span class="nb gr" id="bf">—</span></button>
+    </div>
+    <div class="sdiv"></div>
+    <div>
+      <div class="slabel" style="margin-top:8px;">Categoría</div>
+      <button class="cbt active" id="cat-all"           onclick="cat('all')">Todas</button>
+      <button class="cbt"        id="cat-politica"      onclick="cat('politica')">Política</button>
+      <button class="cbt"        id="cat-seguridad"     onclick="cat('seguridad')">Seguridad</button>
+      <button class="cbt"        id="cat-economia"      onclick="cat('economia')">Economía</button>
+      <button class="cbt"        id="cat-internacional" onclick="cat('internacional')">Internacional</button>
+      <button class="cbt"        id="cat-salud"         onclick="cat('salud')">Salud</button>
+      <button class="cbt"        id="cat-tech"          onclick="cat('tech')">Tecnología</button>
+      <button class="cbt"        id="cat-deportes"      onclick="cat('deportes')">Deportes</button>
+      <button class="cbt"        id="cat-cultura"       onclick="cat('cultura')">Cultura</button>
+      <button class="cbt"        id="cat-otros"         onclick="cat('otros')">Otros</button>
+    </div>
+  </aside>
+
+  <main id="area">
+    <div class="splash">
+      <div class="emblem"><span>M</span></div>
+      <div class="splashtitle">Radar Editorial<br>Meganoticias</div>
+      <div class="splashdesc">Compara tu cobertura contra <strong>11 medios nacionales</strong> verificados.<br>Detecta brechas, tendencias y exclusivos al instante.</div>
+      <button class="btn btn-r" onclick="loadAll()">Analizar feeds ahora</button>
+    </div>
+  </main>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// PROXY CHAIN
+// 5 proxies, tried in order. The first one that returns valid XML wins and is
+// remembered as activeProxy for the rest of the session (speeds up subsequent
+// requests). If a proxy fails mid-session it falls back to the next one.
+// ─────────────────────────────────────────────────────────────────────────────
+const PROXIES = [
+  {
+    name: 'AllOrigins',
+    build: u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    parse: async r => r.text(),
+  },
+  {
+    name: 'AllOrigins (JSON)',
+    build: u => `https://api.allorigins.win/get?url=${encodeURIComponent(u)}`,
+    parse: async r => { const j = await r.json(); return j.contents || null; },
+  },
+  {
+    name: 'CodeTabs',
+    build: u => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+    parse: async r => r.text(),
+  },
+  {
+    name: 'KillCORS',
+    build: u => `https://proxy.killcors.com/?url=${encodeURIComponent(u)}`,
+    parse: async r => r.text(),
+  },
+  {
+    name: 'HTMLDriven',
+    build: u => `https://htmldriven.com/cors-proxy?url=${encodeURIComponent(u)}`,
+    parse: async r => r.text(),
+  },
+];
+
+let activeProxy = null;
+
+async function fetchViaProxy(feedUrl) {
+  const order = activeProxy !== null
+    ? [activeProxy, ...PROXIES.map((_,i)=>i).filter(i=>i!==activeProxy)]
+    : PROXIES.map((_,i)=>i);
+
+  for (const idx of order) {
+    const p = PROXIES[idx];
+    try {
+      const r = await fetch(p.build(feedUrl), { signal: AbortSignal.timeout(14000) });
+      if (!r.ok) continue;
+      const xml = await p.parse(r);
+      if (!xml || typeof xml !== 'string') continue;
+      if (!xml.includes('<item') && !xml.includes('<entry')) continue;
+      activeProxy = idx;
+      return xml;
+    } catch { /* try next proxy */ }
+  }
+  return null;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SOURCES
+// ─────────────────────────────────────────────────────────────────────────────
+const SOURCES = [
+  // Tu medio
+  { id:'mega',       name:'Meganoticias CDMX',  url:'https://www.meganoticias.mx/cdmx/feed-gral',              isMega:true,  isNew:false },
+  // Medios consolidados (feeds verificados)
+  { id:'reforma',    name:'Reforma',             url:'https://www.reforma.com/rss/portada.xml',                isMega:false, isNew:false },
+  { id:'excelsior',  name:'Excélsior',           url:'https://www.excelsior.com.mx/rss.xml',                   isMega:false, isNew:false },
+  { id:'aristegui',  name:'Aristegui Noticias',  url:'https://aristeguinoticias.com/feed/',                    isMega:false, isNew:false },
+  { id:'jornada',    name:'La Jornada',          url:'https://www.jornada.com.mx/rss/edicion-completa.xml',    isMega:false, isNew:false },
+  { id:'universal',  name:'El Universal',        url:'https://www.eluniversal.com.mx/rss/universalmxm.xml',    isMega:false, isNew:false },
+  { id:'financiero', name:'El Financiero',       url:'https://www.elfinanciero.com.mx/arc/outboundfeeds/rss/', isMega:false, isNew:false },
+  // Nuevos incorporados
+  { id:'sinembargo', name:'Sin Embargo',         url:'https://www.sinembargo.mx/feed',                         isMega:false, isNew:true  },
+  { id:'proceso',    name:'Proceso',             url:'https://www.proceso.com.mx/rss/feed.html?r=1',           isMega:false, isNew:true  },
+  { id:'heraldo',    name:'Heraldo de México',   url:'https://heraldodemexico.com.mx/rss',                     isMega:false, isNew:true  },
+  { id:'infobae',    name:'Infobae México',      url:'https://www.infobae.com/mexico/feed/',                   isMega:false, isNew:true  },
+  { id:'sdp',        name:'SDP Noticias',        url:'https://www.sdpnoticias.com/feed',                       isMega:false, isNew:true  },
+];
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CATEGORIES
+// ─────────────────────────────────────────────────────────────────────────────
+const CATS = {
+  politica:      { label:'Política',      kw:['presidente','senado','diputado','congreso','gobierno','secretar','partido','elección','candidato','sheinbaum','morena','pan','pri','gobernador','alcalde','constitución','legislat','funcionario','oposición','votación','cámara','decreto','ministro','política'] },
+  seguridad:     { label:'Seguridad',     kw:['violencia','crimen','delito','narcotráfico','cartel','muerto','homicidio','secuestro','robo','asalto','policía','militar','guardia nacional','ejército','captura','detenido','fiscalía','cárcel','terrorismo','ataque','balacera','accidente'] },
+  economia:      { label:'Economía',      kw:['economía','peso','dólar','tipo de cambio','inflación','pib','banco','inversión','bolsa','mercado','empresa','negocio','impuesto','presupuesto','deuda','hacienda','finanzas','producción','empleo','trabajo','salario','precio','exportación','comercio'] },
+  salud:         { label:'Salud',         kw:['salud','hospital','médico','enfermedad','vacuna','pandemia','virus','cáncer','tratamiento','medicamento','clínica','imss','issste','paciente','epidemia','brote','contagio'] },
+  deportes:      { label:'Deportes',      kw:['fútbol','liga','partido','gol','equipo','jugador','champions','mundial','deporte','torneo','copa','atleta','selección','tigres','chivas','américa','pumas','nfl','nba','béisbol','boxeo','tenis','f1'] },
+  cultura:       { label:'Cultura',       kw:['película','serie','música','arte','festival','concierto','teatro','libro','actor','actriz','cantante','famoso','entretenimiento','espectáculo','cultura','exposición','moda','cine','netflix','disney','grammy','oscar'] },
+  tech:          { label:'Tecnología',    kw:['tecnología','inteligencia artificial','ia','robot','app','software','startup','google','apple','microsoft','meta','tesla','criptomoneda','bitcoin','ciberseguridad','hack','internet','digital','innovación'] },
+  internacional: { label:'Internacional', kw:['eeuu','estados unidos','trump','china','rusia','ucrania','israel','palestina','guerra','conflicto','onu','otan','europa','latinoamérica','brasil','argentina','colombia','venezuela','migrante','diplomacia','embajada','cancillería'] },
+};
+const cLabel = k => CATS[k]?.label || 'Otros';
+
+function categorize(t) {
+  const s = (t||'').toLowerCase();
+  for (const [k,c] of Object.entries(CATS)) if (c.kw.some(w => s.includes(w))) return k;
+  return 'otros';
+}
+function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim(); }
+function sim(a,b){
+  const wa=new Set(norm(a).split(' ').filter(w=>w.length>4));
+  const wb=new Set(norm(b).split(' ').filter(w=>w.length>4));
+  if(!wa.size||!wb.size) return 0;
+  let n=0; for(const w of wa) if(wb.has(w)) n++;
+  return n/Math.max(wa.size,wb.size);
+}
+function ago(ds){
+  if(!ds) return '';
+  const d=new Date(ds); if(isNaN(d)) return '';
+  const m=(Date.now()-d)/60000;
+  if(m<1) return 'ahora';
+  if(m<60) return `hace ${Math.round(m)} min`;
+  if(m<1440) return `hace ${Math.round(m/60)} h`;
+  return `hace ${Math.round(m/1440)} d`;
+}
+function parseXML(xml){
+  try{
+    const doc=new DOMParser().parseFromString(xml,'text/xml');
+    const nodes=[...doc.querySelectorAll('item'),...doc.querySelectorAll('entry')].slice(0,40);
+    return nodes.map(el=>{
+      const title=el.querySelector('title')?.textContent?.replace(/<!\[CDATA\[|\]\]>/g,'').trim()||'';
+      const link=el.querySelector('link')?.textContent?.trim()||el.querySelector('link')?.getAttribute('href')||el.querySelector('guid')?.textContent?.trim()||'#';
+      const pub=el.querySelector('pubDate')?.textContent?.trim()||el.querySelector('published')?.textContent?.trim()||el.querySelector('updated')?.textContent?.trim()||'';
+      return{title,link,pubDate:pub,category:categorize(title)};
+    }).filter(i=>i.title.length>3);
+  }catch{return[];}
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+let allData={}, analysis=null, tab='brechas', activeCat='all', q='';
+
+// Smoke test on load to show which proxy is active
+window.addEventListener('DOMContentLoaded', async ()=>{
+  const pill=document.getElementById('proxyPill');
+  const pname=document.getElementById('proxyName');
+  pill.className='proxy-pill checking';
+  pill.innerHTML='<span class="pdot"></span>Verificando…';
+
+  const testUrl='https://www.sinembargo.mx/feed';
+  for(let i=0;i<PROXIES.length;i++){
+    try{
+      const r=await fetch(PROXIES[i].build(testUrl),{signal:AbortSignal.timeout(5000)});
+      if(r.ok){
+        const txt=await r.text();
+        if(txt.includes('<item')||txt.includes('<entry')){
+          activeProxy=i;
+          pill.className='proxy-pill ok';
+          pill.innerHTML=`<span class="pdot"></span>Proxy OK`;
+          pname.textContent=PROXIES[i].name;
+          pname.style.display='block';
+          break;
+        }
+      }
+    }catch{}
+  }
+  if(activeProxy===null){
+    pill.className='proxy-pill fail';
+    pill.innerHTML='<span class="pdot"></span>Sin proxy';
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// LOAD ALL FEEDS
+// ─────────────────────────────────────────────────────────────────────────────
+async function loadAll(){
+  const btn=document.getElementById('loadBtn');
+  btn.disabled=true; btn.textContent='Cargando…';
+  allData={}; analysis=null; q='';
+  document.getElementById('liveDot').classList.remove('on');
+
+  document.getElementById('area').innerHTML=`
+    <div class="splash fi">
+      <div class="emblem"><span>M</span></div>
+      <div class="splashtitle">Descargando feeds</div>
+      <div class="splashdesc">Conectando con ${SOURCES.length} fuentes RSS…</div>
+      <div class="pwrap">
+        <div class="pbar"><div class="pfill" id="pf"></div></div>
+        <div class="plbl" id="pl">0 / ${SOURCES.length}</div>
+      </div>
+    </div>`;
+
+  let done=0;
+  const tick=()=>{
+    done++;
+    const pct=Math.round(done/SOURCES.length*100);
+    const pf=document.getElementById('pf');
+    const pl=document.getElementById('pl');
+    if(pf)pf.style.width=pct+'%';
+    if(pl)pl.textContent=`${done} / ${SOURCES.length} fuentes`;
+  };
+
+  const results=await Promise.all(SOURCES.map(async s=>{
+    const xml=await fetchViaProxy(s.url);
+    tick();
+    if(!xml) return{...s,items:[],error:'Sin respuesta del proxy'};
+    const items=parseXML(xml);
+    if(!items.length) return{...s,items:[],error:'Feed vacío o sin notas'};
+    return{...s,items};
+  }));
+
+  results.forEach(r=>{allData[r.id]=r;});
+
+  const ok=results.filter(r=>r.items.length).length;
+  btn.disabled=false; btn.textContent='Actualizar';
+  document.getElementById('lastUpdate').textContent=`${ok}/${SOURCES.length} · ${new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})}`;
+  document.getElementById('liveDot').classList.add('on');
+
+  const pill=document.getElementById('proxyPill');
+  const pname=document.getElementById('proxyName');
+  if(ok>0){
+    pill.className='proxy-pill ok';
+    pill.innerHTML=`<span class="pdot"></span>${ok}/${SOURCES.length} feeds OK`;
+    if(activeProxy!==null){ pname.textContent=PROXIES[activeProxy].name; pname.style.display='block'; }
+  } else {
+    pill.className='proxy-pill fail';
+    pill.innerHTML='<span class="pdot"></span>Todos fallaron';
+  }
+
+  compute(); badges(); render();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ANALYSIS
+// ─────────────────────────────────────────────────────────────────────────────
+function compute(){
+  const mega=allData['mega'];
+  const others=Object.values(allData).filter(s=>!s.isMega&&s.items.length);
+  const megaTitles=(mega?.items||[]).map(i=>i.title);
+
+  const clusters={};
+  for(const src of others) for(const item of src.items){
+    let placed=false;
+    for(const key of Object.keys(clusters)){
+      if(sim(item.title,key)>0.35){clusters[key].sources.add(src.name);placed=true;break;}
+    }
+    if(!placed)clusters[item.title]={sources:new Set([src.name]),link:item.link,pubDate:item.pubDate,category:item.category};
+  }
+
+  const breaches=[],coincidences=[];
+  for(const [title,d] of Object.entries(clusters)){
+    const hasMega=megaTitles.some(mt=>sim(mt,title)>0.3);
+    const e={title,sourceCount:d.sources.size,sources:[...d.sources],link:d.link,pubDate:d.pubDate,category:d.category};
+    if(!hasMega&&d.sources.size>=2)breaches.push(e);
+    else if(hasMega)coincidences.push(e);
+  }
+  breaches.sort((a,b)=>b.sourceCount-a.sourceCount);
+  coincidences.sort((a,b)=>b.sourceCount-a.sourceCount);
+
+  const megaOnly=(mega?.items||[]).filter(item=>
+    !Object.values(allData).filter(s=>!s.isMega).some(s=>s.items.some(i=>sim(i.title,item.title)>0.3))
+  );
+
+  const allItems=Object.values(allData).flatMap(s=>s.items.map(i=>({...i,sn:s.name,isMega:s.isMega})));
+  const tc={};
+  for(const item of allItems){let p=false;for(const k of Object.keys(tc)){if(sim(item.title,k)>0.35){tc[k].push(item);p=true;break;}}if(!p)tc[item.title]=[item];}
+  const trending=Object.entries(tc)
+    .map(([title,items])=>({title,count:items.length,sources:[...new Set(items.map(i=>i.sn))],hasMega:items.some(i=>i.isMega),link:items[0].link,pubDate:items[0].pubDate,category:items[0].category}))
+    .filter(t=>t.count>=2).sort((a,b)=>b.count-a.count).slice(0,60);
+
+  analysis={breaches,coincidences,megaOnly,trending};
+}
+
+function badges(){
+  if(!analysis)return;
+  const{breaches,coincidences,megaOnly,trending}=analysis;
+  document.getElementById('bb').textContent=breaches.length;
+  document.getElementById('bu').textContent=breaches.filter(b=>b.sourceCount>=3).length;
+  document.getElementById('bt').textContent=trending.length;
+  document.getElementById('bc').textContent=coincidences.length;
+  document.getElementById('be').textContent=megaOnly.length;
+  document.getElementById('bf').textContent=`${Object.values(allData).filter(s=>s.items.length).length}/${SOURCES.length}`;
+}
+
+function filt(items){
+  return items.filter(i=>(activeCat==='all'||i.category===activeCat)&&(!q||norm(i.title).includes(norm(q))));
+}
+
+function bCard(item){
+  return `<div class="card breach">
+    <div class="hl"><a href="${item.link}" target="_blank" rel="noopener">${item.title}</a></div>
+    <div class="meta">
+      <span class="bx bb">✗ No en Mega</span>
+      <span class="bx bk">${item.sourceCount} medios</span>
+      <span class="bx bcat">${cLabel(item.category)}</span>
+      <span class="bt">${ago(item.pubDate)}</span>
+    </div>
+    <div class="srcs">${item.sources.join(' · ')}</div>
+  </div>`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+function render(){
+  if(!analysis)return;
+  const{breaches,coincidences,megaOnly,trending}=analysis;
+  const mega=allData['mega'];
+  const maxN=Math.max(...Object.values(allData).map(s=>s.items.length),1);
+  const urgAll=breaches.filter(b=>b.sourceCount>=3);
+
+  const metrics=`<div class="metrics fi">
+    <div class="metric ty"><div class="mlb">Notas de Mega</div><div class="mv g">${(mega?.items||[]).length}</div><div class="ms">en el feed activo</div></div>
+    <div class="metric tr"><div class="mlb">Brechas urgentes</div><div class="mv r">${urgAll.length}</div><div class="ms">3+ medios, no en Mega</div></div>
+    <div class="metric">   <div class="mlb">Total brechas</div>  <div class="mv">${breaches.length}</div><div class="ms">2+ medios, no en Mega</div></div>
+    <div class="metric">   <div class="mlb">Exclusivos Mega</div><div class="mv a">${megaOnly.length}</div><div class="ms">solo en tu cobertura</div></div>
+    <div class="metric">   <div class="mlb">Coincidencias</div>  <div class="mv b">${coincidences.length}</div><div class="ms">alineado con agenda</div></div>
+    <div class="metric tn"><div class="mlb">Medios activos</div> <div class="mv">${Object.values(allData).filter(s=>!s.isMega&&s.items.length).length}</div><div class="ms">de ${SOURCES.length-1} fuentes</div></div>
+  </div>`;
+
+  const searchBar=`<div class="sbar"><input class="sinput" type="text" placeholder="Buscar tema o palabra clave…" value="${q}" oninput="handleQ(this.value)"></div>`;
+  const titles={brechas:'Brechas informativas',urgentes:'Urgentes — 3+ medios',tendencias:'Tendencias del momento',coincidencias:'Coincidencias',exclusivos:'Exclusivos Meganoticias',fuentes:'Estado de fuentes'};
+
+  let body='';
+
+  if(tab==='brechas'||tab==='urgentes'){
+    const pool=tab==='urgentes'?urgAll:breaches;
+    const urg=filt(pool.filter(b=>b.sourceCount>=3));
+    const mod=tab!=='urgentes'?filt(pool.filter(b=>b.sourceCount===2)):[];
+    body=`
+      ${urg.length?`<div class="cdiv"><span class="cr">● Urgente — 3 o más medios</span><span class="cl"></span></div>`:''}
+      <div class="nlist">${urg.map(bCard).join('')}</div>
+      ${mod.length?`<div class="cdiv"><span class="ca">● Moderado — 2 medios</span><span class="cl"></span></div>`:''}
+      <div class="nlist">${mod.map(bCard).join('')}</div>
+      ${!urg.length&&!mod.length?'<div class="empty">Sin brechas para esta categoría o búsqueda.</div>':''}`;
+  }
+  else if(tab==='tendencias'){
+    const fil=filt(trending);
+    body=`<div class="nlist">${fil.map(t=>`<div class="card trend">
+      <div class="hl"><a href="${t.link}" target="_blank" rel="noopener">${t.title}</a></div>
+      <div class="meta">
+        <span class="bx bk">${t.count} medios</span>
+        ${t.hasMega?'<span class="bx bc">✓ Mega lo cubre</span>':'<span class="bx bb">✗ Falta en Mega</span>'}
+        <span class="bx bcat">${cLabel(t.category)}</span>
+        <span class="bt">${ago(t.pubDate)}</span>
+      </div>
+      <div class="srcs">${t.sources.join(' · ')}</div>
+    </div>`).join('')}${!fil.length?'<div class="empty">Sin tendencias para esta categoría.</div>':''}</div>`;
+  }
+  else if(tab==='coincidencias'){
+    const fil=filt(coincidences).slice(0,60);
+    body=`<div class="nlist">${fil.map(i=>`<div class="card covered">
+      <div class="hl"><a href="${i.link}" target="_blank" rel="noopener">${i.title}</a></div>
+      <div class="meta">
+        <span class="bx bc">✓ Mega lo cubre</span>
+        <span class="bx bk">${i.sourceCount} medios</span>
+        <span class="bx bcat">${cLabel(i.category)}</span>
+        <span class="bt">${ago(i.pubDate)}</span>
+      </div>
+      <div class="srcs">${i.sources.join(' · ')}</div>
+    </div>`).join('')}${!fil.length?'<div class="empty">Sin coincidencias para esta categoría.</div>':''}</div>`;
+  }
+  else if(tab==='exclusivos'){
+    const fil=filt(megaOnly).slice(0,60);
+    body=`<div class="nlist">${fil.map(i=>`<div class="card excl">
+      <div class="hl"><a href="${i.link}" target="_blank" rel="noopener">${i.title}</a></div>
+      <div class="meta">
+        <span class="bx be">★ Solo en Mega</span>
+        <span class="bx bcat">${cLabel(i.category)}</span>
+        <span class="bt">${ago(i.pubDate)}</span>
+      </div>
+    </div>`).join('')}${!fil.length?'<div class="empty">Sin exclusivos para esta categoría.</div>':''}</div>`;
+  }
+  else if(tab==='fuentes'){
+    const fail=Object.values(allData).filter(s=>!s.items.length).length;
+    body=
+      `<div class="notice notice-blue">ℹ️ Proxy activo: <strong>${activeProxy!==null?PROXIES[activeProxy].name:'desconocido'}</strong> — si algún feed falla, el sistema intenta automáticamente con los siguientes 4 proxies disponibles.</div>`+
+      (fail?`<div class="notice notice-yellow">⚠ ${fail} fuente(s) no cargaron. Esto puede ser temporal — intenta <strong>Actualizar</strong>.</div>`:'')+
+      `<div class="sgrid">${Object.values(allData).map(s=>{
+        const src=SOURCES.find(x=>x.id===s.id);
+        return`<div class="scard ${s.isMega?'mega':''}">
+          <div class="sname">${s.isMega?'★ ':''}${s.name}${src?.isNew?'<span class="stag-new">NUEVO</span>':''}</div>
+          <div class="scnt">${s.items.length} nota${s.items.length!==1?'s':''}</div>
+          ${s.error?`<div class="echip">✗ ${s.error}</div>`:`<div class="okchip">✓ OK</div>`}
+          <div class="sbar2"><div class="sfill" style="width:${Math.round(s.items.length/maxN*100)}%"></div></div>
+        </div>`;
+      }).join('')}</div>`;
+  }
+
+  document.getElementById('area').innerHTML=`
+    ${metrics}
+    <div class="shdr fi"><span class="stitle">${titles[tab]}</span><span class="sline"></span></div>
+    ${tab!=='fuentes'?searchBar:''}
+    <div class="fi">${body}</div>`;
+}
+
+function go(t){tab=t;q='';document.querySelectorAll('.nav').forEach(e=>e.classList.remove('active'));document.getElementById('nav-'+t)?.classList.add('active');if(analysis)render();}
+function cat(c){activeCat=c;document.querySelectorAll('.cbt').forEach(e=>e.classList.remove('active'));document.getElementById('cat-'+c)?.classList.add('active');if(analysis)render();}
+function handleQ(v){q=v;if(analysis)render();}
+</script>
+</body>
+</html>
